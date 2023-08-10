@@ -62,7 +62,7 @@ def get_rel_files_recursively(
     root: PosixPath,
 ) -> List[PosixPath]:
     files = []
-    for dirpath, _, filenames in os.walk(root, followlinks=False):
+    for dirpath, _, filenames in os.walk(root, followlinks=True):
         for filename in filenames:
             file_path = PosixPath(dirpath).joinpath(filename)
             rel_path = file_path.relative_to(root)
@@ -137,16 +137,21 @@ def main(argv: Optional[Sequence[str]] = None):
     dry_run: bool = args.dry_run
 
     source_files = get_rel_files_recursively(source)
+    logger.debug(f"Source files: {source_files}")
 
     create_dirs_recursively(destination, source_files, dry_run)
 
     old_state = read_state_or_empty(state_path)
+    logger.debug(f"Old state is {old_state}")
 
     copy_files_from_rel(source_root=source, destination_root=destination, rel_paths=source_files, dry_run=dry_run)
 
     # TODO: generate new state from copy_files_from_rel response, once it handles errors
     new_state = [destination.joinpath(p) for p in source_files]
+    logger.debug(f"New state is {new_state}")
+
     files_to_delete = get_files_to_delete_from_states(old_state, new_state)
+    logger.debug(f"Files to delete {files_to_delete}")
 
     remove_files(files_to_delete, dry_run)
 

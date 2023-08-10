@@ -17,6 +17,9 @@ pytest-cov = "^4.1.0"
 pythonpath = "project"
 addopts = ["--import-mode=importlib"]
 
+[tool.poetry.scripts]
+nixos-mutable-files-manager = "src.manage_files:main"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
