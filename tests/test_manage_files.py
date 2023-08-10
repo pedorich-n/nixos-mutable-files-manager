@@ -2,13 +2,7 @@ from pathlib import PosixPath
 from typing import List
 
 import src.manage_files as manage_files
-
-
-def _assert_file_content(path: PosixPath, content: List[str]):
-    assert path.exists() == True
-    with open(path, "r") as file:
-        lines = file.read().splitlines()
-        assert lines == content
+from tests.helpers import assert_file_content
 
 
 # region State
@@ -41,7 +35,7 @@ def test_write_state(tmp_path):
     manage_files.write_state(state_path, state, False)
 
     assert state_path.exists() == True
-    _assert_file_content(state_path, ["1.txt", "2.txt", "3.txt"])
+    assert_file_content(state_path, ["1.txt", "2.txt", "3.txt"])
 
 
 def test_get_files_to_delete_from_states():
@@ -97,7 +91,7 @@ def test__copy_file(tmp_path):
     manage_files._copy_file(source, destination, False)
 
     assert destination.exists() == True
-    _assert_file_content(destination, ["test"])
+    assert_file_content(destination, ["test"])
 
 
 def test_copy_files_from_rel(tmp_path):
@@ -121,9 +115,9 @@ def test_copy_files_from_rel(tmp_path):
         dry_run=False,
     )
 
-    _assert_file_content((destination_folder / "1.txt"), ["one"])
-    _assert_file_content((destination_folder / "2.txt"), ["two"])
-    _assert_file_content((destination_folder / "3" / "4.txt"), ["four"])
+    assert_file_content((destination_folder / "1.txt"), ["one"])
+    assert_file_content((destination_folder / "2.txt"), ["two"])
+    assert_file_content((destination_folder / "3" / "4.txt"), ["four"])
 
 
 def test_remove_files(tmp_path):

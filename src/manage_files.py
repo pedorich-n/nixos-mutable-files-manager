@@ -3,7 +3,7 @@ import logging
 import os
 import shutil
 from pathlib import PosixPath
-from typing import Callable, Iterable, List, Optional, TypeVar
+from typing import Callable, Iterable, List, Optional, TypeVar, Sequence
 
 T = TypeVar("T")
 
@@ -22,10 +22,6 @@ def _dry_run_wrap(callable: Callable[[], T], dry_run: bool) -> Optional[T]:
         return None
     else:
         return callable()
-
-
-def convert_paths_to_relative(root: PosixPath, paths: Iterable[PosixPath]) -> List[PosixPath]:
-    return [path.relative_to(root) for path in paths]
 
 
 # region "State"
@@ -126,14 +122,14 @@ def remove_files(paths: Iterable[PosixPath], dry_run: bool):
 # endregion
 
 
-def main():
+def main(argv: Optional[Sequence[str]] = None):
     parser = ArgumentParser("")
     parser.add_argument("--source", type=PosixPath, required=True)
     parser.add_argument("--destination", type=PosixPath, required=True)
     # TODO: fix state path
     parser.add_argument("--state", type=PosixPath, default=PosixPath("/var/lib/test/state"), required=False)
     parser.add_argument("--dry-run", action="store_true", default=False, required=False)
-    args = parser.parse_args()
+    args = parser.parse_args(args=argv)
 
     source: PosixPath = args.source
     destination: PosixPath = args.destination
