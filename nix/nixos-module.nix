@@ -122,11 +122,7 @@ let
 
   activationCommand =
     ''
-      if [ "$NIXOS_ACTION" == "dry-activate" ]; then
-        export MAYBE_DRY_RUN="--dry-run"
-      fi
-          
-      ${getExe package} --source "${mutableFilesStore}" --destination "/" --state "/var/lib/mutable-files/state.txt" ''${MAYBE_DRY_RUN:-}
+      ${getExe package} --source "${mutableFilesStore}" --destination "/" --state "/var/lib/mutable-files/state.txt"
     '';
 in
 {
@@ -148,7 +144,7 @@ in
 
     systemd.services.mutable-files = {
       description = "Manage mutable files with NixOS module";
-      wantedBy = ["multi-user.target"];
+      wantedBy = [ "multi-user.target" ];
 
       script = traceVal activationCommand;
 

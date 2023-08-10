@@ -2,7 +2,7 @@ from pathlib import PosixPath
 from typing import List
 
 import src.manage_files as manage_files
-from tests.helpers import assert_file_content
+from helpers import assert_file_content
 
 
 # region State
@@ -32,7 +32,7 @@ def test_write_state(tmp_path):
 
     state_path = tmp_path / "state"
 
-    manage_files.write_state(state_path, state, False)
+    manage_files.write_state(state_path, state)
 
     assert state_path.exists() == True
     assert_file_content(state_path, ["1.txt", "2.txt", "3.txt"])
@@ -71,7 +71,7 @@ def test_get_rel_files_recursively(tmp_path):
 def test_create_dirs_recursively(tmp_path):
     relative_paths = [PosixPath(p) for p in ["1/2.txt", "1/3/4.txt", "5/6/7.txt"]]
 
-    manage_files.create_dirs_recursively(tmp_path, relative_paths, False)
+    manage_files.create_dirs_recursively(tmp_path, relative_paths)
 
     assert (tmp_path / "1").exists() == True
     assert (tmp_path / "1" / "3").exists() == True
@@ -88,7 +88,7 @@ def test__copy_file(tmp_path):
 
     assert destination.exists() == False
 
-    manage_files._copy_file(source, destination, False)
+    manage_files._copy_file(source, destination)
 
     assert destination.exists() == True
     assert_file_content(destination, ["test"])
@@ -112,7 +112,6 @@ def test_copy_files_from_rel(tmp_path):
         source_root=source_folder,
         destination_root=destination_folder,
         rel_paths=relative_paths,
-        dry_run=False,
     )
 
     assert_file_content((destination_folder / "1.txt"), ["one"])
@@ -131,7 +130,7 @@ def test_remove_files(tmp_path):
     assert (tmp_path / "1" / "2.txt").exists() == True
     assert (tmp_path / "1" / "3" / "4.txt").exists() == True
 
-    manage_files.remove_files(paths, False)
+    manage_files.remove_files(paths)
 
     assert (tmp_path / "1" / "2.txt").exists() == False
     assert (tmp_path / "1" / "3" / "4.txt").exists() == False
