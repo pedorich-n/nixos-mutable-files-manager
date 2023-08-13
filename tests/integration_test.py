@@ -1,9 +1,9 @@
 from pathlib import PosixPath
 import src.manage_files as manage_files
-from helpers import assert_file_content
+from tests.helpers import assert_file_content
 
 
-def test_program_add_files(tmp_path):
+def test_program_add_files_no_metadata(tmp_path):
     tmp_source = tmp_path / "source"
     tmp_source.mkdir()
 
@@ -13,6 +13,9 @@ def test_program_add_files(tmp_path):
     tmp_state = tmp_path / "state.txt"
     tmp_state.write_text("")
 
+    tmp_metadata = tmp_path / "metadata"
+    tmp_metadata.mkdir()
+
     (tmp_source / "1.txt").write_text("test1")
     (tmp_source / "2" / "3").mkdir(parents=True)
     (tmp_source / "2" / "4.txt").write_text("test2")
@@ -20,7 +23,16 @@ def test_program_add_files(tmp_path):
     (tmp_source / "6").mkdir()
     (tmp_source / "6" / "7.txt").write_text("test4")
 
-    args = ["--source", str(tmp_source), "--destination", str(tmp_destination), "--state", str(tmp_state)]
+    args = [
+        "--source",
+        str(tmp_source),
+        "--destination",
+        str(tmp_destination),
+        "--metadata",
+        str(tmp_metadata),
+        "--state",
+        str(tmp_state),
+    ]
     manage_files.main(args)
 
     assert_file_content((tmp_destination / "1.txt"), ["test1"])
@@ -33,7 +45,7 @@ def test_program_add_files(tmp_path):
     assert_file_content(tmp_state, expected_state, sort=True)
 
 
-def test_program_add_update_delete_files(tmp_path):
+def test_program_add_update_delete_files_no_metadata(tmp_path):
     tmp_source = tmp_path / "source"
     tmp_source.mkdir()
 
@@ -55,7 +67,19 @@ def test_program_add_update_delete_files(tmp_path):
     tmp_state = tmp_path / "state.txt"
     tmp_state.write_text(old_state)
 
-    args = ["--source", str(tmp_source), "--destination", str(tmp_destination), "--state", str(tmp_state)]
+    tmp_metadata = tmp_path / "metadata"
+    tmp_metadata.mkdir()
+
+    args = [
+        "--source",
+        str(tmp_source),
+        "--destination",
+        str(tmp_destination),
+        "--metadata",
+        str(tmp_metadata),
+        "--state",
+        str(tmp_state),
+    ]
     manage_files.main(args)
 
     assert_file_content((tmp_destination / "1.txt"), ["test1"])

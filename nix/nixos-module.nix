@@ -3,7 +3,7 @@ with lib;
 let
   cfg = config.environment.mutable-files;
 
-  filtered = with builtins; filter (entry: entry.enable) (traceValSeq (attrValues cfg));
+  filtered = with builtins; filter (entry: entry.enable) (attrValues cfg);
   enabled = filtered != [ ];
 
   package = pkgs.callPackage ./package.nix { };
@@ -14,28 +14,34 @@ let
     makeEntry() {
       src="$1"
       target="$2"
-      # mode="$3"
-      # user="$4"
-      # group="$5"
+      mode="$3"
+      user="$4"
+      group="$5"
 
-      mkdir -p "$out/$(dirname "$target")"
-      if ! [ -e "$out/$target" ]; then
-        ln -s "$src" "$out/$target"
+      files="$out/files/"
+      metadata="$out/metadata/"
+
+      dir=$(dirname "$target")
+      mkdir -p "$files/$dir"
+      mkdir -p "$metadata/$dir"
+
+      if ! [ -e "$files/$target" ]; then
+        ln -s "$src" "$files/$target"
       else
         echo "duplicate entry $target -> $src"
-        if [ "$(readlink "$out/$target")" != "$src" ]; then
-          echo "mismatched duplicate entry $(readlink "$out/$target") <-> $src"
+        if [ "$(readlink "$files/$target")" != "$src" ]; then
+          echo "mismatched duplicate entry $(readlink "$files/$target") <-> $src"
           ret=1
 
           continue
         fi
       fi
 
-      # if [ "$mode" != symlink ]; then
-      #   echo "$mode" > "$out/$target.mode"
-      #   echo "$user" > "$out/$target.uid"
-      #   echo "$group" > "$out/$target.gid"
-      # fi
+      ${getExe pkgs.jq} -n \
+        --arg usr "$user" \
+        --arg grp "$group" \
+        --arg md "$mode" \
+        '{user: $usr, group: $grp, mode: $md}' > "$metadata/$target.meta"
     }
 
     mkdir -p "$out"
@@ -44,9 +50,9 @@ let
       "makeEntry"
       "${entry.source}"
       entry.target
-      # entry.mode
-      # entry.user
-      # entry.group
+      entry.mode
+      entry.user
+      entry.group
     ]) filtered }
   '';
 
@@ -120,10 +126,6 @@ let
     };
   });
 
-  activationCommand =
-    ''
-      ${getExe package} --source "${mutableFilesStore}" --destination "/" --state "/var/lib/mutable-files/state.txt"
-    '';
 in
 {
   ###### interface
@@ -146,15 +148,15 @@ in
       description = "Manage mutable files with NixOS module";
       wantedBy = [ "multi-user.target" ];
 
-      script = traceVal activationCommand;
+      script = ''
+        ${getExe package} \
+          --source "${mutableFilesStore}/files" \
+          --metadata "${mutableFilesStore}/metadata" \
+          --destination "/" \
+          --state "/var/lib/mutable-files/state.txt"
+      '';
 
-      # preStart = mutableFilesStore;
       serviceConfig = {
-        # PrivateUsers = true;
-        # PrivateTmp = true;
-        User = "root"; # TODO: configurable?
-        Group = "root"; # TODO: configurable?
-
         Type = "oneshot";
         RemainAfterExit = true;
         StateDirectory = "mutable-files";

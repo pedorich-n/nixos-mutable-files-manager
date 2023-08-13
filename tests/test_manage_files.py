@@ -1,8 +1,10 @@
+import json
 from pathlib import PosixPath
-from typing import List
+
+from expression import Some
 
 import src.manage_files as manage_files
-from helpers import assert_file_content
+from tests.helpers import assert_file_content
 
 
 # region State
@@ -94,7 +96,7 @@ def test__copy_file(tmp_path):
     assert_file_content(destination, ["test"])
 
 
-def test_copy_files_from_rel(tmp_path):
+def test_copy_files_from_rel_no_metadata(tmp_path):
     source_folder = tmp_path / "source"
     source_folder.mkdir(parents=True)
 
@@ -106,11 +108,14 @@ def test_copy_files_from_rel(tmp_path):
     destination_folder = tmp_path / "destination"
     (destination_folder / "3").mkdir(parents=True)
 
+    metadata_folder = tmp_path / "metadata"
+
     relative_paths = [PosixPath(path) for path in ["1.txt", "2.txt", "3/4.txt"]]
 
-    manage_files.copy_files_from_rel(
+    manage_files.copy_files_and_set_permissions_from_rel(
         source_root=source_folder,
         destination_root=destination_folder,
+        metadata_root=metadata_folder,
         rel_paths=relative_paths,
     )
 
@@ -134,6 +139,18 @@ def test_remove_files(tmp_path):
 
     assert (tmp_path / "1" / "2.txt").exists() == False
     assert (tmp_path / "1" / "3" / "4.txt").exists() == False
+
+
+def test__try_get_metadata(tmp_path):
+    metadata_json = {"user": "test_user", "group": "test_group", "mode": "777"}
+    metadata_path = tmp_path / "metadata.txt"
+    metadata_path.write_text(json.dumps(metadata_json))
+
+    result = manage_files._try_get_metadata(metadata_path)
+
+    assert result.user == Some("test_user")
+    assert result.group == Some("test_group")
+    assert result.mode == Some(0o777)
 
 
 # endregion
