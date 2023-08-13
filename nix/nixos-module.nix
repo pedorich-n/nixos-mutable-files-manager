@@ -133,6 +133,7 @@ in
     environment.mutable-files = mkOption {
       type = types.attrsOf mutableFileSubmodule;
       default = { };
+      description = lib.mdDoc "TODO";
     };
   };
 

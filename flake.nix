@@ -32,6 +32,13 @@
         overlays = [ inputs.poetry2nix.overlay ];
       };
 
+      apps = {
+        docs = {
+          type = "app";
+          program = pkgs.callPackage ./nix/docs.nix { };
+        };
+      };
+
       packages = {
         default = pkgs.callPackage ./nix/package.nix { };
       };

@@ -203,4 +203,3 @@ def main(argv: Optional[Sequence[str]] = None):
     remove_files(files_to_delete)
 
     write_state(state_path, new_state)
-
