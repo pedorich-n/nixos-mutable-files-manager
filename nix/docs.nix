@@ -1,26 +1,39 @@
 { lib, pkgs }:
 let
+  optionsFor = module:
+    let
+      rawOptions = (lib.evalModules {
+        modules = [
+          { _module.check = false; }
+          module
+        ];
+      }).options;
+    in
+    builtins.removeAttrs rawOptions [ "_module" ];
+
   moduleDoc = pkgs.nixosOptionsDoc {
-    inherit ((lib.evalModules {
-      modules = [
-        ./nixos-module.nix
-        { _module.check = false; }
-      ];
-    })) options;
+    options = (optionsFor ./nixos-module.nix);
+    transformOptions = opt: opt // {
+      # Clean up declaration sites to not refer to /nix/store/
+      declarations = [ ];
+    };
   };
-
-  # TODO: use passthru to have a separate command to serve docs?
-  # See: https://github.com/nix-community/ethereum.nix/blob/main/mkdocs.nix#L76-L83
 in
-pkgs.runCommand "nixos-mutable-files-manager.doc"
+pkgs.stdenvNoCC.mkDerivation (finalAttrs:
 {
-  nativeBuildInputs = with pkgs; [ less glow ];
-  meta.mainProgram = "showdocs.sh";
-} ''
-  mkdir -p $out/docs
-  cp ${moduleDoc.optionsCommonMark} $out/docs/module.md
+  src = ./.;
+  name = "nixos-mutable-files-manager.doc";
 
-  mkdir -p $out/bin
-  echo "${pkgs.glow}/bin/glow -p $out/docs/module.md" > $out/bin/showdocs.sh  
-  chmod +x $out/bin/showdocs.sh
-''
+  nativeBuildInputs = with pkgs; [ less glow ];
+
+  installPhase = ''
+    mkdir -p $out/docs
+    cp ${moduleDoc.optionsCommonMark} $out/docs/module.md
+  '';
+
+  passthru.serve = pkgs.writeShellScriptBin "serve" ''
+    set -euo pipefail
+
+    ${pkgs.glow}/bin/glow -p ${finalAttrs.finalPackage.out}/docs/module.md
+  '';
+})
