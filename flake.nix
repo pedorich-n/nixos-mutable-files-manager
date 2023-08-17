@@ -4,29 +4,37 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    flake-parts.url = "github:hercules-ci/flake-parts";
     systems.url = "github:nix-systems/default";
-
-
-    # Dev tools
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
     };
 
-    treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+    pre-commit-hooks = {
+      url = "github:cachix/pre-commit-hooks.nix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
+
+    poetry2nix = {
+      url = "github:nix-community/poetry2nix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
     };
   };
 
   outputs = inputs@{ flake-parts, systems, ... }: flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import systems;
     imports = [
-      inputs.treefmt-nix.flakeModule
+      inputs.pre-commit-hooks.flakeModule
     ];
 
-    perSystem = { config, self', inputs', pkgs, system, ... }: {
+    perSystem = { config, inputs', pkgs, system, ... }: {
       _module.args.pkgs = import inputs.nixpkgs {
         inherit system;
         overlays = [ inputs.poetry2nix.overlay ];
@@ -37,28 +45,37 @@
         docs = pkgs.callPackage ./nix/docs.nix { };
       };
 
-      devShells.default = pkgs.mkShell {
-        name = "nixos-mutable-files-manager";
-        buildInputs = [ pkgs.bashInteractive ];
-        packages = [
-          inputs'.poetry2nix.packages.poetry
-          pkgs.just
-        ];
+      devShells = {
+        default = pkgs.mkShell {
+          name = "nixos-mutable-files-manager";
+          buildInputs = [ pkgs.bashInteractive ];
+          packages = [
+            inputs'.poetry2nix.packages.poetry
+            pkgs.just
+          ];
+        };
+
+        pre-commit = config.pre-commit.devShell;
       };
 
-      # https://numtide.github.io/treefmt/
-      treefmt.config = {
-        projectRootFile = "flake.nix";
-        programs = {
-          nixpkgs-fmt.enable = true;
-          black.enable = true;
-          prettier.enable = true;
+
+      pre-commit.settings.hooks = {
+        # Nix
+        deadnix.enable = true;
+        nixpkgs-fmt.enable = true;
+        statix.enable = true;
+
+        # Python
+        black = {
+          enable = true;
+          entry = with pkgs; lib.mkForce "${lib.getExe black} --line-length=120";
         };
-        settings.formatter = {
-          black.options = [ "--line-length=120" ];
-          prettier.includes = [
-            "*.md"
-          ];
+        isort.enable = true;
+
+        # Other
+        prettier = {
+          enable = true;
+          files = ".+\.md";
         };
       };
     };

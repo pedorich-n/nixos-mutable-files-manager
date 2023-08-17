@@ -12,7 +12,7 @@ let
     builtins.removeAttrs rawOptions [ "_module" ];
 
   moduleDoc = pkgs.nixosOptionsDoc {
-    options = (optionsFor ./nixos-module.nix);
+    options = optionsFor ./nixos-module.nix;
     transformOptions = opt: opt // {
       # Clean up declaration sites to not refer to /nix/store/
       declarations = [ ];

@@ -10,3 +10,5 @@ venv/
 config.yaml
 result
 dist/
+
+.pre-commit-config.yaml

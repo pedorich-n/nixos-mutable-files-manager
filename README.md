@@ -43,7 +43,7 @@ To include this module in your NixOS configuration, add the following to your `f
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixos-mutable-files-manager.url = "github:pedorich-n/nixos-mutable-files-manager"; 
+    nixos-mutable-files-manager.url = "github:pedorich-n/nixos-mutable-files-manager";
   };
 
   outputs = { self, nixpkgs, nixos-mutable-files-manager }: {
