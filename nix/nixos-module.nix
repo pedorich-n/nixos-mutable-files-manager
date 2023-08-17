@@ -62,7 +62,7 @@ let
       source = mkOption {
         type = types.path;
         description = lib.mdDoc ''
-          Path of the source file.
+          Path to the source file.
         '';
       };
 
@@ -70,7 +70,7 @@ let
         type = types.bool;
         default = true;
         description = lib.mdDoc ''
-          Whether this mutable file should be generated.
+          Indicates whether this mutable file should be generated.
         '';
       };
 
@@ -79,7 +79,7 @@ let
         example = literalExpression ''"/opt/example/config.yml"'';
         defaultText = lib.mdDoc "Attribute's name";
         description = lib.mdDoc ''
-          Absolute path to the destination file/folder
+          Absolute path to the destination file/folder.
         '';
       };
 
@@ -88,7 +88,9 @@ let
         type = with types; nullOr str;
         example = "root";
         description = lib.mdDoc ''
-          User name or UID of created file.
+          User name or UID of the created file.  
+          This does not apply to intermediate folders.  
+          If a folder needs to be created, it will be owned by `root`.
         '';
       };
 
@@ -97,7 +99,9 @@ let
         type = with types; nullOr str;
         example = "users";
         description = lib.mdDoc ''
-          Group name or GID of created file.
+          Group name or GID of the created file.  
+          This does not apply to intermediate folders.  
+          If a folder needs to be created, it will be owned by `root`.
         '';
       };
 
@@ -106,7 +110,9 @@ let
         type = with types; nullOr permissionsType;
         example = "664";
         description = lib.mdDoc ''
-          UNIX permission (octal) to apply to files
+          UNIX permission (octal) to be applied to files.  
+          This does not apply to intermediate folders.  
+          If a folder needs to be created, it will have permissions `777`.
         '';
       };
 
@@ -134,14 +140,14 @@ in
       type = types.attrsOf mutableFileSubmodule;
       default = { };
       description = lib.mdDoc ''
-        Manage mutable files anywhere on the file-system.
-        Like {option}`environment.etc`, but with a wider scope.
+        Manage mutable files anywhere on the file system.
+        Like {option}`environment.etc`, but with a broader scope.
 
         ::: {.warning}
-        Be careful about what files you are modifying with this module.\
-        It doesn't have a way to backup files.\
-        It overwrites the files on the File System without asking any questions.\
-        It runs as root, so it can overwrite anything.
+        Exercise caution when modifying files using this module.\
+        It does not have a backup mechanism for files.\
+        The module overwrites files on the file system without prompting for confirmation.\
+        As it runs with root privileges, it can overwrite anything.
         :::
       '';
       example = literalExpression ''

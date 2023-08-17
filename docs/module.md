@@ -1,26 +1,20 @@
 ## environment\.mutable-files
 
-Manage mutable files anywhere on the file-system\.
-Like ` environment.etc `, but with a wider scope\.
+Manage mutable files anywhere on the file system\.
+Like `environment.etc`, but with a broader scope\.
 
-**Warning:** Be careful about what files you are modifying with this module\.  
-It doesn’t have a way to backup files\.  
-It overwrites the files on the File System without asking any questions\.  
-It runs as root, so it can overwrite anything\.
+**Warning:** Exercise caution when modifying files using this module\.  
+It does not have a backup mechanism for files\.  
+The module overwrites files on the file system without prompting for confirmation\.  
+As it runs with root privileges, it can overwrite anything\.
 
-
-
-*Type:*
+_Type:_
 attribute set of (submodule)
 
+_Default:_
+`{ }`
 
-
-*Default:*
-` { } `
-
-
-
-*Example:*
+_Example:_
 
 ```
 environment.mutable-files = {
@@ -34,127 +28,77 @@ environment.mutable-files = {
 
 ```
 
-
-
 ## environment\.mutable-files\.\<name>\.enable
 
+Indicates whether this mutable file should be generated\.
 
-
-Whether this mutable file should be generated\.
-
-
-
-*Type:*
+_Type:_
 boolean
 
-
-
-*Default:*
-` true `
-
-
+_Default:_
+`true`
 
 ## environment\.mutable-files\.\<name>\.group
 
+Group name or GID of the created file\.  
+This does not apply to intermediate folders\.  
+If a folder needs to be created, it will be owned by `root`\.
 
-
-Group name or GID of created file\.
-
-
-
-*Type:*
+_Type:_
 null or string
 
+_Default:_
+`null`
 
-
-*Default:*
-` null `
-
-
-
-*Example:*
-` "users" `
-
-
+_Example:_
+`"users"`
 
 ## environment\.mutable-files\.\<name>\.permissions
 
+UNIX permission (octal) to be applied to files\.  
+This does not apply to intermediate folders\.  
+If a folder needs to be created, it will have permissions `777`\.
 
-
-UNIX permission (octal) to apply to files
-
-
-
-*Type:*
+_Type:_
 null or string
 
+_Default:_
+`null`
 
-
-*Default:*
-` null `
-
-
-
-*Example:*
-` "664" `
-
-
+_Example:_
+`"664"`
 
 ## environment\.mutable-files\.\<name>\.source
 
+Path to the source file\.
 
-
-Path of the source file\.
-
-
-
-*Type:*
+_Type:_
 path
-
-
 
 ## environment\.mutable-files\.\<name>\.target
 
+Absolute path to the destination file/folder\.
 
-
-Absolute path to the destination file/folder
-
-
-
-*Type:*
+_Type:_
 string
 
+_Default:_
+`"Attribute's name"`
 
-
-*Default:*
-` "Attribute's name" `
-
-
-
-*Example:*
-` "/opt/example/config.yml" `
-
-
+_Example:_
+`"/opt/example/config.yml"`
 
 ## environment\.mutable-files\.\<name>\.user
 
+User name or UID of the created file\.  
+This does not apply to intermediate folders\.  
+If a folder needs to be created, it will be owned by `root`\.
 
-
-User name or UID of created file\.
-
-
-
-*Type:*
+_Type:_
 null or string
 
+_Default:_
+`null`
 
-
-*Default:*
-` null `
-
-
-
-*Example:*
-` "root" `
-
-
+_Example:_
+`"root"`

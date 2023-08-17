@@ -52,9 +52,13 @@
         programs = {
           nixpkgs-fmt.enable = true;
           black.enable = true;
+          prettier.enable = true;
         };
         settings.formatter = {
           black.options = [ "--line-length=120" ];
+          prettier.includes = [
+            "*.md"
+          ];
         };
       };
     };
