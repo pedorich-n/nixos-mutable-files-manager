@@ -19,6 +19,13 @@
       };
     };
 
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs = {
@@ -31,6 +38,7 @@
   outputs = inputs@{ flake-parts, systems, ... }: flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import systems;
     imports = [
+      inputs.treefmt-nix.flakeModule
       inputs.pre-commit-hooks.flakeModule
     ];
 
@@ -58,27 +66,43 @@
         pre-commit = config.pre-commit.devShell;
       };
 
+      treefmt.config = {
+        projectRootFile = "flake.nix";
+        programs = {
+          # Nix
+          nixpkgs-fmt.enable = true;
 
-      pre-commit.settings.hooks = {
-        # Nix
-        deadnix.enable = true;
-        nixpkgs-fmt.enable = true;
-        statix.enable = true;
+          # Python
+          black.enable = true;
+          isort = {
+            enable = true;
+            profile = "black";
+          };
 
-        # Python
-        black = {
-          enable = true;
-          entry = with pkgs; lib.mkForce "${lib.getExe black} --line-length=120";
+          # Other
+          prettier.enable = true;
         };
-        isort.enable = true;
+        settings.formatter = {
+          black.options = [ "--line-length=120" ];
 
-        # Other
-        prettier = {
-          enable = true;
-          files = ".+\.md";
+          prettier.includes = [
+            "*.md"
+          ];
+        };
+      };
+
+      pre-commit.settings = {
+        settings.treefmt.package = config.treefmt.build.wrapper;
+
+        hooks = {
+          deadnix.enable = true;
+          statix.enable = true;
+
+          treefmt.enable = true;
         };
       };
     };
+
     flake = {
       nixosModules.default = import ./nix/nixos-module.nix;
     };
