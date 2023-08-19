@@ -10,4 +10,5 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v22
       - name: Flake Check
+        working-directory: dev
         run: nix flake check

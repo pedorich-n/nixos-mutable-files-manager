@@ -11,21 +11,6 @@
       inputs.systems.follows = "systems";
     };
 
-    pre-commit-hooks = {
-      url = "github:cachix/pre-commit-hooks.nix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
-
-    treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
-
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs = {
@@ -37,12 +22,8 @@
 
   outputs = inputs@{ flake-parts, systems, ... }: flake-parts.lib.mkFlake { inherit inputs; } {
     systems = import systems;
-    imports = [
-      inputs.treefmt-nix.flakeModule
-      inputs.pre-commit-hooks.flakeModule
-    ];
 
-    perSystem = { config, inputs', pkgs, system, ... }: {
+    perSystem = { pkgs, system, ... }: {
       _module.args.pkgs = import inputs.nixpkgs {
         inherit system;
         overlays = [ inputs.poetry2nix.overlay ];
@@ -51,55 +32,6 @@
       packages = {
         default = pkgs.callPackage ./nix/package.nix { };
         docs = pkgs.callPackage ./nix/docs.nix { };
-      };
-
-      devShells = {
-        default = pkgs.mkShell {
-          name = "nixos-mutable-files-manager";
-          buildInputs = [ pkgs.bashInteractive ];
-          packages = [
-            inputs'.poetry2nix.packages.poetry
-            pkgs.just
-          ];
-        };
-
-        pre-commit = config.pre-commit.devShell;
-      };
-
-      treefmt.config = {
-        projectRootFile = "flake.nix";
-        programs = {
-          # Nix
-          nixpkgs-fmt.enable = true;
-
-          # Python
-          black.enable = true;
-          isort = {
-            enable = true;
-            profile = "black";
-          };
-
-          # Other
-          prettier.enable = true;
-        };
-        settings.formatter = {
-          black.options = [ "--line-length=120" ];
-
-          prettier.includes = [
-            "*.md"
-          ];
-        };
-      };
-
-      pre-commit.settings = {
-        settings.treefmt.package = config.treefmt.build.wrapper;
-
-        hooks = {
-          deadnix.enable = true;
-          statix.enable = true;
-
-          treefmt.enable = true;
-        };
       };
     };
 
