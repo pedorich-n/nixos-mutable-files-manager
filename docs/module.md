@@ -53,7 +53,7 @@ _Default:_
 _Example:_
 `"users"`
 
-## environment\.mutable-files\.\<name>\.permissions
+## environment\.mutable-files\.\<name>\.mode
 
 UNIX permission (octal) to be applied to files\.  
 This does not apply to intermediate folders\.  

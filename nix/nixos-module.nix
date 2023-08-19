@@ -55,7 +55,7 @@ let
     ]) filtered }
   '';
 
-  permissionsType = with types; addCheck str (value: (builtins.match "^[0-7]{3,4}$" value) != null);
+  modeType = with types; addCheck str (value: (builtins.match "^[0-7]{3,4}$" value) != null);
 
   mutableFileSubmodule = types.submodule ({ name, config, options, ... }: {
     options = {
@@ -105,9 +105,9 @@ let
         '';
       };
 
-      permissions = mkOption {
+      mode = mkOption {
         default = null;
-        type = with types; nullOr permissionsType;
+        type = with types; nullOr modeType;
         example = "664";
         description = lib.mdDoc ''
           UNIX permission (octal) to be applied to files.  

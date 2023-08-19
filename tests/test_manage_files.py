@@ -112,7 +112,7 @@ def test_copy_files_from_rel_no_metadata(tmp_path):
 
     relative_paths = [PosixPath(path) for path in ["1.txt", "2.txt", "3/4.txt"]]
 
-    manage_files.copy_files_and_set_permissions_from_rel(
+    manage_files.copy_files_and_set_mode_from_rel(
         source_root=source_folder,
         destination_root=destination_folder,
         metadata_root=metadata_folder,

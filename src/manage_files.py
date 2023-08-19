@@ -120,7 +120,7 @@ def _chmod(path: PosixPath, maybe_mode: Option[int]) -> None:
     maybe_mode.map(inner)
 
 
-def copy_files_and_set_permissions_from_rel(
+def copy_files_and_set_mode_from_rel(
     source_root: PosixPath,
     destination_root: PosixPath,
     metadata_root: PosixPath,
@@ -190,7 +190,7 @@ def main(argv: Optional[Sequence[str]] = None):
     old_state = read_state_or_empty(state_path)
     logger.debug(f"Old state is {old_state}")
 
-    copy_files_and_set_permissions_from_rel(
+    copy_files_and_set_mode_from_rel(
         source_root=source, destination_root=destination, metadata_root=metadata, rel_paths=source_files
     )
 
