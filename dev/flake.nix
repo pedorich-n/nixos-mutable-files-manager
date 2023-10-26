@@ -40,7 +40,7 @@
       inputs.pre-commit-hooks.flakeModule
     ];
 
-    perSystem = { config, inputs', pkgs, system, lib, ... }: {
+    perSystem = { config, pkgs, system, lib, ... }: {
       _module.args.pkgs = import inputs.nixpkgs {
         inherit system;
         overlays = [ inputs.poetry2nix.overlay ];
@@ -50,9 +50,9 @@
         default = pkgs.mkShell {
           name = "nixos-mutable-files-manager";
           buildInputs = [ pkgs.bashInteractive ];
-          packages = [
-            inputs'.poetry2nix.packages.poetry
-            pkgs.just
+          packages = with pkgs; [
+            poetry
+            just
           ];
         };
 
