@@ -20,8 +20,8 @@
     };
   };
 
-  outputs = inputs@{ flake-parts, systems, ... }: flake-parts.lib.mkFlake { inherit inputs; } {
-    systems = import systems;
+  outputs = inputs@{ flake-parts, ... }: flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
+    systems = import inputs.systems;
 
     perSystem = { pkgs, system, ... }: {
       _module.args.pkgs = import inputs.nixpkgs {
@@ -36,7 +36,9 @@
     };
 
     flake = {
-      nixosModules.default = import ./nix/nixos-module.nix;
+      nixosModules.default = moduleWithSystem (perSystem@{ config }: { ... }: {
+        imports = [ (import ./nix/nixos-module.nix { package = perSystem.config.packages.default; }) ];
+      });
     };
-  };
+  });
 }

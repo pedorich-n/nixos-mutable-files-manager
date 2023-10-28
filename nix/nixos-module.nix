@@ -1,11 +1,10 @@
+{ package, ... }:
 { pkgs, config, lib, ... }:
 with lib;
 let
   cfg = config.environment.mutable-files;
 
   filtered = with builtins; filter (entry: entry.enable) (attrValues cfg);
-
-  package = pkgs.callPackage ./package.nix { };
 
   mutableFilesStore = pkgs.runCommandLocal "mutable-files" { } ''
     set -euo pipefail
