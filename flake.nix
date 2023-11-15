@@ -14,8 +14,11 @@
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs = {
+        systems.follows = "systems";
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
+        nix-github-actions.follows = "";
+        treefmt-nix.follows = "";
       };
     };
   };
