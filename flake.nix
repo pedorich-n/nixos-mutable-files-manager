@@ -2,7 +2,7 @@
   description = "Application packaged using poetry2nix";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     systems.url = "github:nix-systems/default";
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -35,6 +35,17 @@
       packages = {
         default = pkgs.callPackage ./nix/package.nix { };
         docs = pkgs.callPackage ./nix/docs.nix { };
+      };
+
+      devShells = {
+        default = pkgs.mkShell {
+          name = "nixos-mutable-files-manager";
+          buildInputs = [ pkgs.bashInteractive ];
+          packages = with pkgs; [
+            poetry
+            just
+          ];
+        };
       };
     };
 
