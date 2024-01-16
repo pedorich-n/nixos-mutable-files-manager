@@ -36,6 +36,17 @@
         default = pkgs.callPackage ./nix/package.nix { };
         docs = pkgs.callPackage ./nix/docs.nix { };
       };
+
+      devShells = {
+        default = pkgs.mkShell {
+          name = "nixos-mutable-files-manager";
+          buildInputs = [ pkgs.bashInteractive ];
+          packages = with pkgs; [
+            poetry
+            just
+          ];
+        };
+      };
     };
 
     flake = {
