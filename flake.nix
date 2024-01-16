@@ -2,7 +2,7 @@
   description = "Application packaged using poetry2nix";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     systems.url = "github:nix-systems/default";
     flake-parts.url = "github:hercules-ci/flake-parts";
