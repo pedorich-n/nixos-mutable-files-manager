@@ -1,5 +1,10 @@
 # NixOS Mutable Files Manager
 
+## Deprecation notice
+
+Almost all of the features of this project can achieved using `systemd.tmpfiles.settings` or `systemd.tmpfiles.rules`.
+Hence there's little reason to keep supporting this.
+
 ## Problem
 
 When you manage files with Nix, they are stored in the immutable storage at `/nix/store/`. And there's no way to change the file other than switch the configuration.
